@@ -1,0 +1,139 @@
+class Room:
+    """Class to represent a hotel room."""
+    def __init__(self, room_number, room_type, price, is_available=True):
+        self.room_number = room_number
+        self.room_type = room_type
+        self.price = price
+        self.is_available = is_available
+
+    def __str__(self):
+        availability = "Available" if self.is_available else "Occupied"
+        return f"Room {self.room_number} ({self.room_type}): ${self.price} - {availability}"
+
+
+class Customer:
+    """Class to represent a customer."""
+    def __init__(self, customer_id, name, phone_number, room=None):
+        self.customer_id = customer_id
+        self.name = name
+        self.phone_number = phone_number
+        self.room = room
+
+    def __str__(self):
+        room_info = f"Room {self.room.room_number}" if self.room else "No room assigned"
+        return f"Customer {self.customer_id}: {self.name}, Phone: {self.phone_number}, {room_info}"
+
+
+class Hotel:
+    """Class to represent the hotel management system."""
+    def __init__(self):
+        self.rooms = []
+        self.customers = {}
+        self.next_customer_id = 1
+
+    def add_room(self, room_number, room_type, price):
+        """Add a room to the hotel."""
+        room = Room(room_number, room_type, price)
+        self.rooms.append(room)
+
+    def view_available_rooms(self):
+        """View all available rooms."""
+        print("\n=== Available Rooms ===")
+        available_rooms = [room for room in self.rooms if room.is_available]
+        if not available_rooms:
+            print("No available rooms.")
+            return
+        for room in available_rooms:
+            print(room)
+
+    def book_room(self):
+        """Book a room for a customer."""
+        self.view_available_rooms()
+        room_number = input("\nEnter the room number to book: ")
+        selected_room = next((room for room in self.rooms if room.room_number == room_number and room.is_available), None)
+        if not selected_room:
+            print("Invalid room number or room is not available.")
+            return
+        name = input("Enter customer name: ")
+        phone_number = input("Enter customer phone number: ")
+        customer = Customer(self.next_customer_id, name, phone_number, selected_room)
+        self.customers[self.next_customer_id] = customer
+        self.next_customer_id += 1
+        selected_room.is_available = False
+        print(f"Room {room_number} successfully booked for {name}.")
+
+    def check_out(self):
+        """Check out a customer."""
+        customer_id = int(input("\nEnter customer ID to check out: "))
+        customer = self.customers.get(customer_id)
+        if not customer:
+            print("Customer not found.")
+            return
+        room = customer.room
+        room.is_available = True
+        print(f"Customer {customer.name} checked out from Room {room.room_number}.")
+        del self.customers[customer_id]
+
+    def view_customers(self):
+        """View all customers."""
+        print("\n=== Customers ===")
+        if not self.customers:
+            print("No customers found.")
+            return
+        for customer in self.customers.values():
+            print(customer)
+
+    def generate_bill(self):
+        """Generate the bill for a customer."""
+        customer_id = int(input("\nEnter customer ID to generate bill: "))
+        customer = self.customers.get(customer_id)
+        if not customer:
+            print("Customer not found.")
+            return
+        room = customer.room
+        print(f"\n=== Bill for Customer {customer.name} ===")
+        print(f"Room Number: {room.room_number}")
+        print(f"Room Type: {room.room_type}")
+        print(f"Price per night: ${room.price}")
+        print("Thank you for staying with us!")
+
+    def run(self):
+        """Run the hotel management system."""
+        while True:
+            print("\n=== Hotel Management System ===")
+            print("1. View Available Rooms")
+            print("2. Book a Room")
+            print("3. View Customers")
+            print("4. Check Out")
+            print("5. Generate Bill")
+            print("6. Exit")
+            choice = input("Enter your choice: ")
+
+            if choice == "1":
+                self.view_available_rooms()
+            elif choice == "2":
+                self.book_room()
+            elif choice == "3":
+                self.view_customers()
+            elif choice == "4":
+                self.check_out()
+            elif choice == "5":
+                self.generate_bill()
+            elif choice == "6":
+                print("Exiting the system. Thank you!")
+                break
+            else:
+                print("Invalid choice. Please try again.")
+
+
+# Create hotel and add rooms
+hotel = Hotel()
+hotel.add_room("101", "Single", 100)
+hotel.add_room("102", "Single", 100)
+hotel.add_room("201", "Double", 150)
+hotel.add_room("202", "Double", 150)
+hotel.add_room("301", "Suite", 300)
+
+# Run the hotel management system
+if __name__ == "__main__":
+    hotel.run()
